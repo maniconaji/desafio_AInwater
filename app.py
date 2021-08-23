@@ -48,9 +48,17 @@ from plot import bar_by_cycle_sum, gastoenergetico_por_dia, bar_by_cycle_mean
 if variable == "Motor soplador":
     col_name = 'blower_hz'
     
+    container_0 = st.beta_container()
+    container_0.header(variable)
+    container_0.markdown("""
+    La variable "blower_hz" contiene hz de giro del motor a lo largo de esta semana, caracterizándose por presentar una mayor variabilidad con relación a la media a la hora de comparar el promedio y la desviación estándar de esta variable. Esto se debe principalmente a que el accionamiento del motor no es continuo (observable al manejar la barra de abajo de la serie de tiempo).
+    """)
+    container_0.subheader("Resumen estadistico")
+    container_0.write(df.filter([col_name]).describe().T)
+    
     # Serie de Tiempo
     container_1 = st.beta_container()
-    fig = px.line(df, x="datetime", y=col_name, color="cycle_id", title='Serie de Tiempo de los Hz del soplador')
+    fig = px.line(df, x="datetime", y=col_name, color="cycle_id", title='<b>Serie de Tiempo de los Hz del soplador</b>')
     fig.update_yaxes(range = [0, 60])
     fig.update_layout(height=500)
     fig.update_xaxes(rangeslider_visible=True)
@@ -59,11 +67,25 @@ if variable == "Motor soplador":
     # Hz totales por ciclo
     title = {"blower_hz"  : "<b>Hz totales por ciclo</b>",}
     container_2 = st.beta_container()
+    container_2.markdown("""
+    Por otro lado, cuando se estudia los Hz totales por cada ciclo, se deduce:
+    * Hay un mayor consumo energético en los ciclos correspondientes a las tardes-noches (últimos tres ciclos de cada día).
+    * Este fenómeno es producto del aumento en el flujo de RIL a tratar en la planta de tratamiento.
+    """)
     fig = bar_by_cycle_sum(
-    df, "blower_hz", title = title, col_color = "day", col_hover_data = ["do_level", "h2o_level", "month", "year"], height = 450, width=1100
+    df, col_name, title = title, col_color = "day", col_hover_data = ["do_level", "h2o_level", "month", "year"], height = 400, width=1100
     )
     container_2.plotly_chart(fig, use_container_width=True)
     
+elif variable == "Oxígeno":
+    col_name = 'do_level'
+    
+    # Serie de Tiempo   
+    container_1 = st.beta_container()
+    fig = px.line(df, x="datetime", y=col_name, color="cycle_id", title='<b>Serie de Tiempo del nivel de oxígeno</b>')
+    fig.update_layout(height=500)
+    fig.update_xaxes(rangeslider_visible=True)
+    container_1.plotly_chart(fig, use_container_width=True)
     
 #     fig1, grouped_df, col_name = bar_by_cycle(df, variable, height = 500, width=1000)
 
