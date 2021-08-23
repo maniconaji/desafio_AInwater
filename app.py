@@ -4,6 +4,7 @@ import streamlit as st
 # working with sample data.
 import numpy as np
 import pandas as pd
+import plotly.express as px
 
 import sys
 sys.path.insert(0, 'Script')
@@ -17,11 +18,16 @@ sidebar = st.sidebar
 
 sidebar.title('Desafió AInwater')
 
+sidebar.markdown("""
+El siguiente desafío tiene por objetivo central caracterizar el funcionamiento de la planta durante una semana dividido en cuatro etapas. Para esto, cuenta con variables que describen n° de registro de la medición, fecha, hora, el consumo energético del motor del soplador, nivel de oxígeno, nivel de agua y una identificación del ciclo a que corresponde. 
+""")
+
 variable = sidebar.radio(
     "Variable a analizar:",
-    ("Motor", "Oxígeno", "Agua", "Clustering"),
+    ("Motor soplador", "Oxígeno", "Agua", "Clustering"),
     index = 0
 )
+
 
 ########################################## panel #################################################
 # previo
@@ -38,12 +44,28 @@ df = read_csvdata(path_src, type_columns)
 
 from plot import bar_by_cycle_sum, gastoenergetico_por_dia, bar_by_cycle_mean
 
-# # ["do_level", "h2o_level", "blower_hz", "cycle_id"]
-# if variable in ["Motor", "Oxígeno", "Agua"]:
-#     container_1 = st.beta_container()
+ # ["do_level", "h2o_level", "blower_hz", "cycle_id"]
+if variable == "Motor soplador":
+    col_name = 'blower_hz'
+    
+    # Serie de Tiempo
+    container_1 = st.beta_container()
+    fig = px.line(df, x="datetime", y=col_name, color="cycle_id", title='Serie de Tiempo de los Hz del soplador')
+    fig.update_yaxes(range = [0, 60])
+    fig.update_layout(height=500)
+    fig.update_xaxes(rangeslider_visible=True)
+    container_1.plotly_chart(fig, use_container_width=True)
+    
+    # Hz totales por ciclo
+    title = {"blower_hz"  : "<b>Hz totales por ciclo</b>",}
+    container_2 = st.beta_container()
+    fig = bar_by_cycle_sum(
+    df, "blower_hz", title = title, col_color = "day", col_hover_data = ["do_level", "h2o_level", "month", "year"], height = 450, width=1100
+    )
+    container_2.plotly_chart(fig, use_container_width=True)
+    
     
 #     fig1, grouped_df, col_name = bar_by_cycle(df, variable, height = 500, width=1000)
-#     container_1.plotly_chart(fig1, use_container_width=True)
 
 #     if variable in ["Oxígeno", "Agua"]:
 #         container_2 = st.beta_container()
