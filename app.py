@@ -104,9 +104,55 @@ elif variable == "Oxígeno":
     "do_level"   : "<b>Nivel medio de O<sub>2</sub></b>",
     "h2o_level"  : "<b>Nivel medio de H<sub>2</sub>O</b>"
     }
+    container_2.markdown("""
+    Ahora, en relación a la comparación del nivel medio de oxígeno considerando todos los datos y aquellos en que solo estaba en funcionamiento el motor del soplador ("blower_hz > 0"), se deduce:
+    
+    * Antes de que se produzca un mayor consumo energético en cada uno de los ciclos, es decir, los ciclos 3, 8, 13, 18, 23, 28 y 33, los niveles medios de oxígeno se encuentran por sobre los otros ciclos de funcionamiento de cada día. 
+    * El efecto anterior ocurre debido al aumento en el flujo a tratar, y por ende, los niveles de oxígeno en el proceso aerobio disminuyen por una crecida en el volumen a tratar.
+    * Referente a los histogramas, ambos presentan una distribución exponencial. En el primer histograma (el que considera todos los valores de la variable "blower_hz") la clase "0 - 0.462" es presenta por sobre 40% de los datos. Por otro lado, cuando se filtran los resultados de la variable "blower_hz", la clase "0 - 0.544" presenta cerca de un 30% de los datos.
+    """)
+    
     fig1 = bar_by_cycle_mean(df, col_name, title = title, height = 400, width=1200)
-    container_1.plotly_chart(fig1, use_container_width=True)
+    container_2.plotly_chart(fig1, use_container_width=True)
     fig2 = bar_by_cycle_mean(df, col_name, title = title, query_text = "blower_hz > 0", height = 400, width=1200)
-    container_1.plotly_chart(fig2, use_container_width=True)
+    container_2.plotly_chart(fig2, use_container_width=True)
+    
+elif variable == "Agua":
+    col_name = 'h2o_level'
+    
+    container_0 = st.beta_container()
+    container_0.header(variable)
+    container_0.markdown("""
+    La variable "h2o_level" contiene el nivel de agua a lo largo de esta semana, caracterizándose por presentar una menor variabilidad con relación a la media a la hora de comparar el promedio y la desviación estándar de esta variable. Esto se debe principalmente a que en la etapa aerobia de la planta de tratamiento se mantiene un nivel mínimo de agua (observable al manejar la barra de abajo de la serie de tiempo).
+    """)
+    container_0.subheader("Resumen estadistico")
+    container_0.write(df.filter([col_name]).describe().T)
+    
+    # Serie de Tiempo   
+    container_1 = st.beta_container()
+    fig = px.line(df, x="datetime", y=col_name, color="cycle_id", title='<b>Serie de Tiempo del nivel de oxígeno</b>')
+    fig.update_layout(height=500)
+    fig.update_xaxes(rangeslider_visible=True)
+    container_1.plotly_chart(fig, use_container_width=True)
+    
+    #
+    container_2 = st.beta_container()
+    title = {
+    "blower_hz"  : "<b>Nivel medio de Hz</b>",
+    "do_level"   : "<b>Nivel medio de O<sub>2</sub></b>",
+    "h2o_level"  : "<b>Nivel medio de H<sub>2</sub>O</b>"
+    }
+    container_2.markdown("""
+    Ahora, en relación a la comparación del nivel medio de agua considerando todos los datos y aquellos en que solo estaba en funcionamiento el motor del soplador ("blower_hz > 0"), se deduce:
+    
+    * Cuando se produce un mayor consumo energético en cada uno de los ciclos, es decir, los ciclos 3, 8, 13, 18, 23, 28 y 33, los niveles medios de agua se encuentran por sobre los otros ciclos de funcionamiento de ese día.
+    * Respecto a los histogramas, considerando todos los valores de la variable "blower_hz" se presenta una distribución bimodal. No obstante, cuando se filtran los valores de la variable "blower_hz" esta distribución pasa a ser una distribución normal con un sesgo hacia la derecha. 
+    
+    """)
+    
+    fig1 = bar_by_cycle_mean(df, col_name, title = title, height = 400, width=1200)
+    container_2.plotly_chart(fig1, use_container_width=True)
+    fig2 = bar_by_cycle_mean(df, col_name, title = title, query_text = "blower_hz > 0", height = 400, width=1200)
+    container_2.plotly_chart(fig2, use_container_width=True)
 
 
