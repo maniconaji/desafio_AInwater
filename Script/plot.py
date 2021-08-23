@@ -153,3 +153,101 @@ def gastoenergetico_por_dia(df, query, col_labels, col_values, subtitle, col_hov
 
 ########################################## bar_by_cycle_mean ###########################################################
 
+def bar_by_cycle_mean(df, col_name, title, query_text = None, **kwargs):
+    # Agrupar datos por ciclo y obtener el total por ciclo
+    if query_text is None:
+        title_text = title[col_name].upper()+"<b> por ciclo</b>".upper()
+        pass
+    else:
+        df = df.query(query_text)
+        title_text = title[col_name].upper()+"<b> por ciclo para ".upper()+query_text.upper()+"</b>".upper()
+        
+    grouped_df = df.groupby("cycle_id").mean().reset_index()
+    counts, bins = np.histogram(df[col_name], bins=k_bins(df[col_name]), range=(round_down(df[col_name].min()), round_up(df[col_name].max())))
+    counts = counts*100/np.sum(counts)
+    
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=(title[col_name], "<b>Histograma</b>"),
+        column_widths=[0.7, 0.3],
+#         shared_yaxes= True,
+        horizontal_spacing = 0.075
+    )
+    # Figura para gráficar nivel medio de cada variable
+    fig.add_trace(
+        go.Scatter(
+            x    = grouped_df["cycle_id"], y = grouped_df[col_name],
+            name = title[col_name],
+            mode='lines+markers',
+            marker=dict(
+                line=dict(color='rgba(0, 0, 0, 1.0)', width=1)
+            )), row=1, col=1
+    )
+    # Figura para gráficar el histograma de cada variable
+    fig.add_trace(
+        go.Histogram(
+            x        = df[col_name],
+            histnorm = 'percent',
+            name   = "<b>Histograma</b>",
+            xbins  = dict(
+                start = bins[0],
+                end   = bins[-1],
+                size  = bins[1] - bins[0]
+            ),
+            marker = dict(
+                line = dict(color='rgba(0, 0, 0, 1.0)', width=1),
+            )
+        ), row=1, col=2
+    )
+    fig.update_layout(
+        # Axis gráfico de barras
+        yaxis = dict(
+            title = "<b>"+col_name+"</b>", titlefont_size = 14, tickfont_size  = 12, 
+            showline = True, linewidth = 1, linecolor = 'black', mirror = True,
+            showgrid = True, gridwidth = 0.25, gridcolor = 'rgba(0, 0, 0, 0.5)',
+            zeroline = True, zerolinewidth = 0.25, zerolinecolor = 'rgba(0, 0, 0, 0.5)'
+        ),
+        yaxis_range = [round_down(grouped_df[col_name].min()*0.95, 1), round_up(grouped_df[col_name].max()*1.05, 1)],
+        xaxis = dict(
+            title = "<b>cycle_id</b>", titlefont_size = 14, tickfont_size  = 12, 
+            tickvals = grouped_df["cycle_id"], ticktext = grouped_df["cycle_id"], 
+            showline = True, linewidth = 1, linecolor = 'black', mirror = True,
+            showgrid = True, gridwidth = 0.25, gridcolor = 'rgba(0, 0, 0, 0.5)',
+            zeroline = True, zerolinewidth = 0.25, zerolinecolor = 'rgba(0, 0, 0, 0.5)'
+        ),
+        xaxis_range = [grouped_df["cycle_id"].min()-1, grouped_df["cycle_id"].max()+1],
+        
+        # Axis Histograma
+        yaxis2 = dict(
+            title = "<b>Total</b>", titlefont_size = 14, tickfont_size  = 12, 
+            showline = True, linewidth = 1, linecolor = 'black', mirror = True,
+            showgrid = True, gridwidth = 0.25, gridcolor = 'rgba(0, 0, 0, 0.5)',
+            zeroline = True, zerolinewidth = 0.25, zerolinecolor = 'rgba(0, 0, 0, 0.5)'
+                     ),
+        yaxis2_range = [0, round_up(np.max(counts)*1.05,-1)],
+        xaxis2 = dict(
+            title = "<b>cycle_id</b>", titlefont_size = 14, tickfont_size  = 12, 
+            showline = True, linewidth = 1, linecolor = 'black', mirror = True,
+            showgrid = True, gridwidth = 0.25, gridcolor = 'rgba(0, 0, 0, 0.5)',
+            zeroline = True, zerolinewidth = 0.25, zerolinecolor = 'rgba(0, 0, 0, 0.5)' 
+                     ),
+        xaxis2_range = [bins[0], bins[-1]],
+        
+        # Tamaño figura
+        height     = kwargs["height"],
+        width      = kwargs["width"],
+        
+        # Titulo
+        title_text = title_text,
+        title_x    = 0.5,
+        title_y    = 0.95,
+        titlefont_size = 20,
+        
+        # Legend
+        showlegend = False,
+        
+        # Margenes y color de fondo
+        plot_bgcolor = "white",
+    )
+    
+    return fig
