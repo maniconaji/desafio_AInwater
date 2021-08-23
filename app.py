@@ -182,6 +182,7 @@ elif variable == "Clustering":
     
     fig = px.scatter(df_sin_query.sort_values("sch_label", axis=0), x="pca 1", y="pca 2", color="sch_label", hover_data=["do_level", "h2o_level", "blower_hz", "cycle_id"],
                     title = "<b>Clusters para modelo AgglomerativeClustering con n_cluster = 2 </b>")
+    fig.update_layout(height=750)
     container_0.plotly_chart(fig, use_container_width=True)
     
     # blower > 0
@@ -201,6 +202,7 @@ elif variable == "Clustering":
     
     fig = px.scatter(df_con_query.sort_values("kmeans_label4", axis=0), x="pca 1", y="pca 2", color="kmeans_label4", hover_data=["do_level", "h2o_level", "blower_hz", "cycle_id"],
                     title = "<b>Clusters para un modelo k-means con n_cluster = 8 </b>")
+    fig.update_layout(height=750)
     container_1.plotly_chart(fig, use_container_width=True)
 
     # blower > 0
