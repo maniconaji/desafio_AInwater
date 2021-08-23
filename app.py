@@ -79,7 +79,7 @@ if variable == "Motor soplador":
     Estas aseveraciones son comprobables en el siguiente gráfico de barras, que corresponde a los Hz totales por cada ciclo, considerando distintos colores para cada día.
     """)
     fig = bar_by_cycle_sum(
-    df, col_name, title = title, col_color = "day", col_hover_data = ["do_level", "h2o_level", "month", "year"], height = 400, width=1100
+    df, col_name, title = title, col_color = "day", col_hover_data = ["month", "year"], height = 400, width=1100
     )
     container_2.plotly_chart(fig, use_container_width=True)
     
